@@ -30,6 +30,7 @@ Resources:
       FunctionName: !Sub 'awscodestar-${ProjectId}-lambda-HelloWorld'
       Handler: index.handler
       Runtime: nodejs12.x
+      Timeout: 10
       Environment:
         Variables:
           NODE_ENV: production
