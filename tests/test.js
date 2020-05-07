@@ -13,9 +13,5 @@ describe('Tests app', function() {
         done(err);
     });
   });
-  it('verifies post', function(done) {
-    request.post('/').expect(200).end(function(err, result) {
-        done(err);
-    });
-  });
+
 });
