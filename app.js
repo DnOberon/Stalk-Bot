@@ -37,6 +37,9 @@ app.post('/', function(req, res) {
   docClient.put(payload, function(err, data) {
     if (err) {
       console.error("Unable to add item. Error JSON:", JSON.stringify(err, null, 2));
+      res.sendStatus(500);
+      return;
+
     } else {
       console.log("Added item:", JSON.stringify(data, null, 2));
     }
