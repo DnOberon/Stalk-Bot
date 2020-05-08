@@ -34,7 +34,7 @@ Resources:
       Environment:
         Variables:
           NODE_ENV: production
-          PGUSER: {{resolve:secretsmanager:stalkbot:SecretString:PGUSER}}
+          PGUSER: '{{resolve:secretsmanager:stalkbot:SecretString:PGUSER}}'
           PGHOST: ""
           PGPASSWORD: ""
           PGDATABASE: ""
