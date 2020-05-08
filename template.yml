@@ -34,11 +34,11 @@ Resources:
       Environment:
         Variables:
           NODE_ENV: production
-          PGUSER:
-          PGHOST:
-          PGPASSWORD:
-          PGDATABASE:
-          PGPORT:
+          PGUSER: ""
+          PGHOST: ""
+          PGPASSWORD: ""
+          PGDATABASE: ""
+          PGPORT: ""
       Role:
         Fn::GetAtt:
         - LambdaExecutionRole
