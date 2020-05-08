@@ -14,6 +14,17 @@ function getDynamoClient() {
  return new AWS.DynamoDB.DocumentClient()
 }
 
+function islandCodeValid(islandCode) {
+    // Could we combine all these if statements into one? Sure, but
+    // I like being explicit
+    if(typeof  islandCode !== "string") return false
+
+    if(islandCode.length > 5) return false
+
+    if(!/^[a-z0-9]+$/i.test(islandCode)) return false
+
+    return true
+}
 
 app.get('/', function(req, res) {
     res.send({
@@ -25,10 +36,20 @@ app.get('/', function(req, res) {
 app.post('/', function(req, res) {
     docClient = getDynamoClient()
 
+    if(!islandCodeValid(req.body.islandCode)) {
+        res.status(500).json({"error":"invalid island code"})
+        return
+    }
+
+    if(req.body.turnipPrice > 1000) {
+        res.status(500).json({"error":"invalid turnip price, too high"})
+        return
+    }
+
     var payload = {
       TableName: "stalk-bot",
       Item: {
-        "islandCode": req.body.islandCode,
+        "islandCode": req.body.islandCode.toUpperCase(),
         "turnipPrice": req.body.turnipPrice,
         "ttl": Math.floor((Date.now() + (30 * 60 * 1000)) / 1000)
       }
@@ -36,13 +57,8 @@ app.post('/', function(req, res) {
 
   docClient.put(payload, function(err, data) {
     if (err) {
-
-      console.error("Unable to add item. Error JSON:", JSON.stringify(err, null, 2));
-      res.sendStatus(500);
+      res.status(500).json({"error": "Unable to add item. Error JSON:".concat(JSON.stringify(err, null, 2))});
       return;
-
-    } else {
-      console.log("Added item:", JSON.stringify(data, null, 2));
     }
 
     res.sendStatus(200);
