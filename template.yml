@@ -59,7 +59,9 @@ Resources:
         - Effect: Allow
           Principal:
             Service: [lambda.amazonaws.com]
-          Action: sts:AssumeRole
+          Action:
+            - sts:AssumeRole
+            - dynamodb:*
       Path: /
       ManagedPolicyArns:
         - !Sub 'arn:${AWS::Partition}:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole'
