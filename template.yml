@@ -35,10 +35,10 @@ Resources:
         Variables:
           NODE_ENV: production
           PGUSER: '{{resolve:secretsmanager:stalkbot:SecretString:PGUSER}}'
-          PGHOST: ""
-          PGPASSWORD: ""
-          PGDATABASE: ""
-          PGPORT: ""
+          PGHOST: '{{resolve:secretsmanager:stalkbot:SecretString:PGHOST}}'
+          PGPASSWORD: '{{resolve:secretsmanager:stalkbot:SecretString:PGPASSWORD}}'
+          PGDATABASE: '{{resolve:secretsmanager:stalkbot:SecretString:PGDATABASE}}'
+          PGPORT: '{{resolve:secretsmanager:stalkbot:SecretString:PGPORT}}'
       Role:
         Fn::GetAtt:
         - LambdaExecutionRole
