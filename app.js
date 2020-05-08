@@ -61,12 +61,12 @@ app.get('/', function(req, res) {
 
 app.post('/', function(req, res) {
 
-    if(!islandCodeValid(req.body.islandCode)) {
+    if(!islandCodeValid(req.body.island_code)) {
         res.status(500).json({"error":"invalid island code"})
         return
     }
 
-    price = parseInt(req.body.turnipPrice, 10)
+    price = parseInt(req.body.turnip_price, 10)
 
     if(price > 1000) {
         res.status(500).json({"error":"invalid turnip price, too high"})
@@ -75,7 +75,7 @@ app.post('/', function(req, res) {
 
     pool.query({
         text:'INSERT INTO stalks(island_code,turnip_price,requested) VALUES($1,$2,$3)',
-         values:[req.body.islandCode, price, 0]
+         values:[req.body.island_code, price, 0]
     })
     .then(() => {
      res.status(200).send();
