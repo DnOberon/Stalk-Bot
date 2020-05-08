@@ -1,18 +1,11 @@
 var express = require('express');
 var app = express();
-var AWS = require("aws-sdk")
 var bodyParser = require("body-parser")
 
+const { Pool} = require('pg')
+
 app.use(bodyParser.json())
-
-function getDynamoClient() {
-  AWS.config.update({
-    region: "us-east-1",
-    endpoint: "https://dynamodb.us-east-1.amazonaws.com"
-  })
-
- return new AWS.DynamoDB.DocumentClient()
-}
+console.log(process.env)
 
 function islandCodeValid(islandCode) {
     // Could we combine all these if statements into one? Sure, but
@@ -27,16 +20,12 @@ function islandCodeValid(islandCode) {
 }
 
 app.get('/', function(req, res) {
-
-    
-
-
-    res.status(500).json({"error": "No islands available"})
-    return;
+   res.status(500).json({"error": "No islands available"})
+   return;
 });
 
 app.post('/', function(req, res) {
-    docClient = getDynamoClient()
+    const pool = new Pool()
 
     if(!islandCodeValid(req.body.islandCode)) {
         res.status(500).json({"error":"invalid island code"})
@@ -50,24 +39,17 @@ app.post('/', function(req, res) {
         return
     }
 
-    var payload = {
-      TableName: "stalk-bot",
-      Item: {
-        "islandCode": req.body.islandCode.toUpperCase(),
-        "turnipPrice": price,
-        "requested": 0, // allows use to throttle how many users have access to an island
-        "ttl": Math.floor((Date.now() + (30 * 60 * 1000)) / 1000)
-      }
-    }
-
-  docClient.put(payload, function(err, data) {
-    if (err) {
-      res.status(500).json({"error": "Unable to add item. Error JSON:".concat(JSON.stringify(err, null, 2))});
-      return;
-    }
-
-    res.sendStatus(200);
-  })
+    pool.query({
+        text:'INSERT INTO stalks(islandCode,turnipPrice,requested) VALUES($1,$2,$3)',
+         values:[req.body.islandCode, price, 0]
+    })
+        .then(() => {
+         res.statusCode(200);
+         return;
+        })
+        .catch(err => {
+            res.status(500).json({"error": err})
+        })
 });
 
 
