@@ -30,7 +30,7 @@ app.post('/', function(req, res) {
       Item: {
         "islandCode": req.body.islandCode,
         "turnipPrice": req.body.turnipPrice,
-        "ttl": Date.now() + (30 * 60 * 1000)
+        "ttl": Math.floor((Date.now() + (30 * 60 * 1000)) / 1000)
       }
     }
 
