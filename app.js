@@ -41,7 +41,9 @@ app.post('/', function(req, res) {
         return
     }
 
-    if(req.body.turnipPrice > 1000) {
+    price = parseInt(req.body.turnipPrice, 10)
+
+    if(price > 1000) {
         res.status(500).json({"error":"invalid turnip price, too high"})
         return
     }
@@ -50,7 +52,7 @@ app.post('/', function(req, res) {
       TableName: "stalk-bot",
       Item: {
         "islandCode": req.body.islandCode.toUpperCase(),
-        "turnipPrice": req.body.turnipPrice,
+        "turnipPrice": price,
         "ttl": Math.floor((Date.now() + (30 * 60 * 1000)) / 1000)
       }
     }
