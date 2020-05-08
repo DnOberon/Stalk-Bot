@@ -27,10 +27,12 @@ function islandCodeValid(islandCode) {
 }
 
 app.get('/', function(req, res) {
-    res.send({
-      "islandCode": "DOGJ38",
-      "turnipPrice": 589,
-    });
+
+    
+
+
+    res.status(500).json({"error": "No islands available"})
+    return;
 });
 
 app.post('/', function(req, res) {
@@ -53,6 +55,7 @@ app.post('/', function(req, res) {
       Item: {
         "islandCode": req.body.islandCode.toUpperCase(),
         "turnipPrice": price,
+        "requested": 0, // allows use to throttle how many users have access to an island
         "ttl": Math.floor((Date.now() + (30 * 60 * 1000)) / 1000)
       }
     }
