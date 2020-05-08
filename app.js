@@ -3,9 +3,9 @@ var app = express();
 var bodyParser = require("body-parser")
 
 const { Pool} = require('pg')
+const pool = new Pool()
 
 app.use(bodyParser.json())
-console.log(process.env)
 
 function islandCodeValid(islandCode) {
     // Could we combine all these if statements into one? Sure, but
@@ -20,12 +20,40 @@ function islandCodeValid(islandCode) {
 }
 
 app.get('/', function(req, res) {
-   res.status(500).json({"error": "No islands available"})
-   return;
+    // pull in only non-expired, and below requested threshold islands
+    pool.query(`SELECT * FROM stalks WHERE requested < 15 AND NOW() < (created_at + (30 * interval '1 minute')) ORDER BY turnip_price DESC LIMIT 1;`)
+        .then((resp) => {
+           if(resp.rows && resp.rows.length <= 0) {
+               res.status(500).json({"error": "no islands registered"})
+               return
+           }
+
+           // update the retrieved island
+           if(resp.rows) {
+              pool.query({
+                  text: 'UPDATE stalks SET requested = $1 WHERE id = $2',
+                  values: [resp.rows[0].requested + 1, resp.rows[0].id]
+              })
+                  .then(() => {
+                      res.status(200).json(resp.rows[0])
+                      return
+                  })
+                  .catch(err => {
+                      console.log(err)
+                      res.status(500).json({"error": err})
+                      return
+                  })
+           }
+        })
+        .catch(err => {
+            console.log(err)
+            res.status(500).json({"error": err})
+            return
+        })
+    return;
 });
 
 app.post('/', function(req, res) {
-    const pool = new Pool()
 
     if(!islandCodeValid(req.body.islandCode)) {
         res.status(500).json({"error":"invalid island code"})
@@ -40,16 +68,18 @@ app.post('/', function(req, res) {
     }
 
     pool.query({
-        text:'INSERT INTO stalks(islandCode,turnipPrice,requested) VALUES($1,$2,$3)',
+        text:'INSERT INTO stalks(island_code,turnip_price,requested) VALUES($1,$2,$3)',
          values:[req.body.islandCode, price, 0]
     })
-        .then(() => {
-         res.statusCode(200);
-         return;
-        })
-        .catch(err => {
-            res.status(500).json({"error": err})
-        })
+    .then(() => {
+     res.status(200).send();
+     return;
+    })
+    .catch(err => {
+        console.log(err)
+        res.status(500).json({"error": err})
+        return
+    })
 });
 
 
