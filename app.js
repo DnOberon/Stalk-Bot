@@ -74,8 +74,8 @@ app.post('/', function(req, res) {
     }
 
     pool.query({
-        text:'INSERT INTO stalks(island_code,turnip_price,requested) VALUES($1,$2,$3)',
-         values:[req.body.island_code, price, 0]
+        text:'INSERT INTO stalks(island_code,turnip_price,requested,reported) VALUES($1,$2,$3,$4)',
+         values:[req.body.island_code, price, 0, 0]
     })
     .then(() => {
      res.status(200).send();
