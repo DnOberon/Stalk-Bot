@@ -109,8 +109,8 @@ app.post('/report', function(req, res) {
             // update the retrieved island if it exists
             if(resp.rows) {
                 pool.query({
-                    text: 'UPDATE stalks SET reported = $1 WHERE id = $2',
-                    values: [resp.rows[0].reported + 1, resp.rows[0].id]
+                    text: 'UPDATE stalks SET reported = $1 WHERE island_code = $2',
+                    values: [resp.rows[0].reported + 1, req.body.island_code]
                 })
                     .then(() => {
                         res.status(200).send()
