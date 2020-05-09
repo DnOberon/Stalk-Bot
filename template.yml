@@ -54,7 +54,7 @@ Resources:
           Properties:
             Path: /
             Method: post
-        PostEvent:
+        ReportEvent:
           Type: Api
           Properties:
             Path: /report
