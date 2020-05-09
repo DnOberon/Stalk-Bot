@@ -54,6 +54,11 @@ Resources:
           Properties:
             Path: /
             Method: post
+        PostEvent:
+          Type: Api
+          Properties:
+            Path: /report
+            Method: post
   LambdaExecutionRole:
     Description: Creating service role in IAM for AWS Lambda
     Type: AWS::IAM::Role

@@ -27,7 +27,7 @@ function islandCodeValid(islandCode) {
 
 app.get('/', function(req, res) {
     // pull in only non-expired, and below requested threshold islands
-    pool.query(`SELECT * FROM stalks WHERE requested < 15 AND NOW() < (created_at + (30 * interval '1 minute')) ORDER BY turnip_price DESC LIMIT 1;`)
+    pool.query(`SELECT * FROM stalks WHERE requested < 15 AND reported < 2 AND NOW() < (created_at + (30 * interval '1 minute')) ORDER BY turnip_price DESC LIMIT 1;`)
         .then((resp) => {
            if(resp.rows && resp.rows.length <= 0) {
                res.status(500).json({"error": "no islands registered"})
@@ -88,6 +88,47 @@ app.post('/', function(req, res) {
     })
 });
 
+app.post('/report', function(req, res) {
+    if(!islandCodeValid(req.body.island_code)) {
+        res.status(500).json({"error":"invalid island code"})
+        return
+    }
+
+    // you'll notice that we're only sending a status 200 - we do this so that someone
+    // can't continually query and find all the existing island codes
+    pool.query({
+        text: `SELECT * FROM stalks WHERE island_code = $1 LIMIT 1;`,
+        values: [req.body.island_code]
+            })
+        .then((resp) => {
+            if(resp.rows && resp.rows.length <= 0) {
+                res.status(200).send()
+                return
+            }
+
+            // update the retrieved island if it exists
+            if(resp.rows) {
+                pool.query({
+                    text: 'UPDATE stalks SET reported = $1 WHERE id = $2',
+                    values: [resp.rows[0].reported + 1, resp.rows[0].id]
+                })
+                    .then(() => {
+                        res.status(200).send()
+                        return
+                    })
+                    .catch(err => {
+                        console.log(err)
+                        res.status(200).send()
+                        return
+                    })
+            }
+        })
+        .catch(err => {
+            console.log(err)
+            res.status(200).send()
+            return
+        })
+});
 
 // Export your Express configuration so that it can be consumed by the Lambda handler
 module.exports = app
