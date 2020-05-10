@@ -2,6 +2,9 @@ var express = require('express');
 var app = express();
 var bodyParser = require("body-parser")
 
+var Filter = require('bad-words'),
+    filter = new Filter();
+
 const { Pool} = require('pg')
 const pool = new Pool({
     user: process.env.PGUSER,
@@ -21,6 +24,8 @@ function islandCodeValid(islandCode) {
     if(islandCode.length > 5) return false
 
     if(!/^[a-z0-9]+$/i.test(islandCode)) return false
+
+    if(filter.isProfane(islandCode)) return false;
 
     return true
 }
