@@ -11,7 +11,7 @@
         "pg": "^8.1.0"
     },
     "devDependencies": {
-        "aws-sdk": "^2.672.0",
+        "aws-sdk": "^2.814.0",
         "mocha": "5.0.0",
         "supertest": "3.0.0",
         "unit.js": "^2.1.1"
